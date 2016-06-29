@@ -1,9 +1,14 @@
 package com.mangocity.test;
 
+import java.util.List;
+
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.mangocity.rpc.common.Constant;
 import com.mangocity.rpc.proxy.RpcProxy;
 import com.mangocity.rpc.service.IHelloService;
 
@@ -20,4 +25,7 @@ public class HelloServiceTest {
 		String result = helloService.hello("World");
 		System.out.println("result: " + result);
 	}
+	
 }
+
+

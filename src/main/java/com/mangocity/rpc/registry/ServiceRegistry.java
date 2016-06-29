@@ -7,8 +7,9 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.ZooDefs;
+import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,10 +32,23 @@ public class ServiceRegistry {
 		if (data != null) {
 			ZooKeeper zk = connectServer();
 			if (zk != null) {
-				createNode(zk, data);
+				try {
+					Stat stat = zk.exists(Constant.ZK_REGISTRY_PATH, false);
+					if(null == stat){
+						createNode(zk, data);
+					}else{
+						setData(zk,data);
+					}
+				} catch (KeeperException e) {
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				
 			}
 		}
 	}
+
 
 	private ZooKeeper connectServer() {
 		LOGGER.info("ServiceRegistry connectServer begin()...");
@@ -59,11 +73,21 @@ public class ServiceRegistry {
 		LOGGER.info("ServiceRegistry createNode begin()...data: " + data);
 		try {
 			byte[] bytes = data.getBytes();
-			String path = zk.create(Constant.ZK_REGISTRY_PATH, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE,
-					CreateMode.EPHEMERAL_SEQUENTIAL);
+			/*String path = zk.create(Constant.ZK_REGISTRY_PATH, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE,
+					CreateMode.EPHEMERAL_SEQUENTIAL);*/
+			String path = zk.create(Constant.ZK_REGISTRY_PATH, bytes, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			LOGGER.debug("create zookeeper node ({} => {})", path, data);
 		} catch (KeeperException | InterruptedException e) {
-			LOGGER.error("ServiceRegistry failure. " + e.getMessage(), e);
+			LOGGER.error("ServiceRegistry createNode failure. " + e.getMessage(), e);
+		}
+	}
+	
+	private void setData(ZooKeeper zk, String data) {
+		byte[] bytes = data.getBytes();
+		try {
+			zk.setData(Constant.ZK_REGISTRY_PATH, bytes, -1);//-1是version
+		} catch (KeeperException | InterruptedException e) {
+			LOGGER.error("ServiceRegistry setData failure. " + e.getMessage(), e);
 		}
 	}
 }
