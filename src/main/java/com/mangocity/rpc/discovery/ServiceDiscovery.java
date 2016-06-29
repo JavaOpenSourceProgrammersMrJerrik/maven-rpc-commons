@@ -85,7 +85,7 @@ public class ServiceDiscovery {
 			LOGGER.debug("node data: {}", dataList);
 			this.dataList = dataList;
 		} catch (KeeperException | InterruptedException e) {
-			LOGGER.error("", e);
+			LOGGER.error(e.getMessage(), e);
 		}
 	}
 }

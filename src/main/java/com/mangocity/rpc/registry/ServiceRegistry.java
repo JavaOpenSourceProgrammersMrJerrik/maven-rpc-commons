@@ -37,6 +37,7 @@ public class ServiceRegistry {
 	}
 
 	private ZooKeeper connectServer() {
+		LOGGER.info("ServiceRegistry connectServer begin()...");
 		ZooKeeper zk = null;
 		try {
 			zk = new ZooKeeper(registryAddress, Constant.ZK_SESSION_TIMEOUT, new Watcher() {
@@ -49,19 +50,20 @@ public class ServiceRegistry {
 			});
 			latch.await();
 		} catch (IOException | InterruptedException e) {
-			LOGGER.error("", e);
+			LOGGER.error(e.getMessage(), e);
 		}
 		return zk;
 	}
 
 	private void createNode(ZooKeeper zk, String data) {
+		LOGGER.info("ServiceRegistry createNode begin()...data: " + data);
 		try {
 			byte[] bytes = data.getBytes();
-			String path = zk.create(Constant.ZK_DATA_PATH, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE,
+			String path = zk.create(Constant.ZK_REGISTRY_PATH, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE,
 					CreateMode.EPHEMERAL_SEQUENTIAL);
 			LOGGER.debug("create zookeeper node ({} => {})", path, data);
 		} catch (KeeperException | InterruptedException e) {
-			LOGGER.error("", e);
+			LOGGER.error("ServiceRegistry failure. " + e.getMessage(), e);
 		}
 	}
 }
