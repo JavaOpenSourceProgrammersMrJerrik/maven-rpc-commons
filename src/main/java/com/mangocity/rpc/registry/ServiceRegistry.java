@@ -33,7 +33,7 @@ public class ServiceRegistry {
 			ZooKeeper zk = connectServer();
 			if (zk != null) {
 				try {
-					Stat stat = zk.exists(Constant.ZK_REGISTRY_PATH, false);
+					Stat stat = zk.exists(Constant.ZK_DATA_PATH, false);
 					if(null == stat){
 						createNode(zk, data);
 					}else{
@@ -63,7 +63,7 @@ public class ServiceRegistry {
 				}
 			});
 			latch.await();
-		} catch (IOException | InterruptedException e) {
+		} catch (Exception e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 		return zk;
@@ -73,11 +73,13 @@ public class ServiceRegistry {
 		LOGGER.info("ServiceRegistry createNode begin()...data: " + data);
 		try {
 			byte[] bytes = data.getBytes();
-			/*String path = zk.create(Constant.ZK_REGISTRY_PATH, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE,
-					CreateMode.EPHEMERAL_SEQUENTIAL);*/
-			String path = zk.create(Constant.ZK_REGISTRY_PATH, bytes, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			String path = zk.create(Constant.ZK_REGISTRY_PATH, bytes,Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			path = zk.create(Constant.ZK_DATA_PATH, bytes, Ids.OPEN_ACL_UNSAFE,
+					CreateMode.PERSISTENT);
 			LOGGER.debug("create zookeeper node ({} => {})", path, data);
-		} catch (KeeperException | InterruptedException e) {
+		} catch (KeeperException e) {
+			LOGGER.error("ServiceRegistry createNode failure. " + e.getMessage(), e);
+		}catch(InterruptedException e){
 			LOGGER.error("ServiceRegistry createNode failure. " + e.getMessage(), e);
 		}
 	}
@@ -85,9 +87,11 @@ public class ServiceRegistry {
 	private void setData(ZooKeeper zk, String data) {
 		byte[] bytes = data.getBytes();
 		try {
-			zk.setData(Constant.ZK_REGISTRY_PATH, bytes, -1);//-1是version
-		} catch (KeeperException | InterruptedException e) {
-			LOGGER.error("ServiceRegistry setData failure. " + e.getMessage(), e);
+			zk.setData(Constant.ZK_DATA_PATH, bytes, -1);//-1是version
+		}catch (KeeperException e) {
+			LOGGER.error("ServiceRegistry createNode failure. " + e.getMessage(), e);
+		}catch(InterruptedException e){
+			LOGGER.error("ServiceRegistry createNode failure. " + e.getMessage(), e);
 		}
 	}
 }

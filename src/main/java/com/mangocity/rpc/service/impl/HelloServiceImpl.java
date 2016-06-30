@@ -8,6 +8,6 @@ public class HelloServiceImpl implements IHelloService {
 
 	@Override
 	public String hello(String name) {
-		return "Hello! " + name;
+		return "The first rpc framework...hello " + name;
 	}
 }

@@ -35,24 +35,14 @@ public class RpcProxy {
 						request.setMethodName(method.getName());
 						request.setParameterTypes(method.getParameterTypes());
 						request.setParameters(args);
-
 						if (serviceDiscovery != null) {
 							serverAddress = serviceDiscovery.discover(); // 发现服务
 						}
-
 						String[] array = serverAddress.split(":");
 						String host = array[0];
 						int port = Integer.parseInt(array[1]);
-
 						RpcClient client = new RpcClient(host, port); // 初始化 RPC
-																		// 客户端
-						RpcResponse response = client.send(request); // 通过 RPC
-																		// 客户端发送
-																		// RPC
-																		// 请求并获取
-																		// RPC
-																		// 响应
-
+						RpcResponse response = client.send(request); // 通过RPC,客户端发送,RPC,请求并获取,RPC,响应
 						if (response.isError()) {
 							throw response.getError();
 						} else {

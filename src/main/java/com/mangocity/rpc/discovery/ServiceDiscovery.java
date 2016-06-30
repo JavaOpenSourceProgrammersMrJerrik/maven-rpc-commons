@@ -61,7 +61,7 @@ public class ServiceDiscovery {
 				}
 			});
 			latch.await();
-		} catch (IOException | InterruptedException e) {
+		} catch (Exception e) {
 			LOGGER.error("", e);
 		}
 		return zk;
@@ -69,6 +69,7 @@ public class ServiceDiscovery {
 
 	private void watchNode(final ZooKeeper zk) {
 		try {
+			LOGGER.info("zk.getChildren {/registry} begin()...");
 			List<String> nodeList = zk.getChildren(Constant.ZK_REGISTRY_PATH, new Watcher() {
 				@Override
 				public void process(WatchedEvent event) {
@@ -82,9 +83,9 @@ public class ServiceDiscovery {
 				byte[] bytes = zk.getData(Constant.ZK_REGISTRY_PATH + "/" + node, false, null);
 				dataList.add(new String(bytes));
 			}
-			LOGGER.debug("node data: {}", dataList);
+			LOGGER.info("node data: {}", dataList);
 			this.dataList = dataList;
-		} catch (KeeperException | InterruptedException e) {
+		} catch (Exception e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 	}

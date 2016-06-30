@@ -38,7 +38,6 @@ public class RpcClient extends SimpleChannelInboundHandler<RpcResponse> {
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, RpcResponse response) throws Exception {
 		this.response = response;
-
 		synchronized (obj) {
 			obj.notifyAll(); // 收到响应，唤醒线程
 		}
@@ -57,22 +56,18 @@ public class RpcClient extends SimpleChannelInboundHandler<RpcResponse> {
 			bootstrap.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer<SocketChannel>() {
 				@Override
 				public void initChannel(SocketChannel channel) throws Exception {
-					channel.pipeline().addLast(new RpcEncoder(RpcRequest.class)) // 将
-																					// RPC
-																					// 请求进行编码（为了发送请求）
-							.addLast(new RpcDecoder(RpcResponse.class)) // 将 RPC
-																		// 响应进行解码（为了处理响应）
+					channel.pipeline().addLast(new RpcEncoder(RpcRequest.class)) // 将RPC请求进行编码（为了发送请求）
+							.addLast(new RpcDecoder(RpcResponse.class)) // 将 RPC响应进行解码(为了处理响应)
 							.addLast(RpcClient.this); // 使用 RpcClient 发送 RPC 请求
 				}
 			}).option(ChannelOption.SO_KEEPALIVE, true);
 
 			ChannelFuture future = bootstrap.connect(host, port).sync();
 			future.channel().writeAndFlush(request).sync();
-
 			synchronized (obj) {
+				LOGGER.info("未收到响应，使线程等待...");
 				obj.wait(); // 未收到响应，使线程等待
 			}
-
 			if (response != null) {
 				future.channel().closeFuture().sync();
 			}
