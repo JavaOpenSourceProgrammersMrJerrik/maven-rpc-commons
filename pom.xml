@@ -4,13 +4,16 @@
 	<groupId>com.mangocity.rpc</groupId>
 	<artifactId>maven-rpc-commons</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<JDK.version>1.7</JDK.version>
+		<jdk.version>1.7</jdk.version>
 		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
 	</properties>
-	<dependencies>
 
+	<dependencies>
 		<!-- JUnit -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -87,7 +90,38 @@
 	</dependencies>
 
 	<build>
+		<finalName>mvn-rpc-1.0</finalName>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>${jdk.version}</source>
+					<target>${jdk.version}</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.8</version>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>false</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+							<includeScope>compile</includeScope>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -97,22 +131,35 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>com.mangocity.rpc.bootstrap.RpcBootstrap</mainClass>
+							<mainClass>baigong.loganalysis.ExtractLog</mainClass>
 						</manifest>
 					</archive>
+					<!--过滤掉不希望包含在jar中的文件 -->
+					<excludes>
+						<exclude>${project.basedir}/xml/*</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
-			
-			<!-- 指定JDK版本 -->
-			 <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                </configuration>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<descriptors>
+						<descriptor>src/main/assembly/assembly.xml</descriptor>
+					</descriptors>
+				</configuration>
+				<executions>
+					<!-- 当执行mvn package时才会打包 -->
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 </project>

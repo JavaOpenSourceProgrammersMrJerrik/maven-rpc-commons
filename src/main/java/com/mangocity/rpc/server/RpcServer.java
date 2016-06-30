@@ -48,6 +48,7 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
 
 	@Override
 	public void setApplicationContext(ApplicationContext ctx) throws BeansException {
+		LOGGER.info("setApplicationContext begin{}...");
 		Map<String, Object> serviceBeanMap = ctx.getBeansWithAnnotation(RpcService.class); // 获取所有带有,RpcService
 		if (MapUtils.isNotEmpty(serviceBeanMap)) {
 			for (Object serviceBean : serviceBeanMap.values()) {

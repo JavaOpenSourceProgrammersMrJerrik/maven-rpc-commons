@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.mangocity.rpc.common.Constant;
 
-//实现服务注册
+//实现服务注册 zookeeper的注册中心就充当了RMI的JNDI
 public class ServiceRegistry {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServiceRegistry.class);
